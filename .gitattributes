@@ -1,0 +1,7 @@
+# 统一换行符：仓库里存 LF，Windows 的 .bat 检出成 CRLF
+* text=auto eol=lf
+*.bat text eol=crlf
+
+# 二进制文件不做转换
+*.pdf binary
+*.png binary

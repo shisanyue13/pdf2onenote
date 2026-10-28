@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.log
+out/
+# 拆分产物（默认不入库）
+*_章节/
+.DS_Store

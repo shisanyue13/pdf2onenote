@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pdf2onenote · 图形界面</title>
+<style>
+  :root {
+    /* 血色：更红、更实；金：压深 */
+    --bg:#1a0505; --bg2:#210707; --panel:#2a0a0a; --panel2:#310d0d;
+    --line:#5a1512; --line2:#7a1c18;
+    --red:#8c1c18; --red2:#b02420; --red3:#d13a32;
+    --gold:#6f5414; --gold2:#8a6a1a; --gold3:#a8832c; --goldink:#c4a468;
+    --ink:#f1e3cf; --dim:#c0a48f; --faint:#8d7161;
+    --ok:#7fae63;
+    --serif:"Songti SC","Noto Serif SC",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;
+       min-height:100vh;padding:34px 20px 64px}
+  .wrap{max-width:1060px;margin:0 auto}
+
+  .hero{text-align:center;margin-bottom:26px}
+  .hero svg{width:52px;height:52px;margin:0 auto 8px;display:block}
+  .hero h1{font-family:var(--serif);font-size:2.05rem;letter-spacing:.16em;margin:0 0 6px;color:var(--goldink)}
+  .hero p{margin:0;color:var(--dim);font-size:.94rem}
+  .hero .rule{height:1px;margin:16px auto 0;max-width:400px;background:var(--gold)}
+
+  .offline{display:none;border:1px solid var(--red2);background:#3a0c0a;color:#ffd9d2;
+    border-radius:10px;padding:12px 16px;font-size:.88rem;margin-bottom:18px;line-height:1.8}
+  .offline.show{display:block}
+  .offline code{background:#260606;border:1px solid var(--gold);border-radius:5px;
+    padding:1px 6px;color:var(--goldink)}
+
+  .module{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px 22px;margin:0 0 18px}
+  .mhead{display:flex;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}
+  .num{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;
+    font-family:var(--serif);font-size:1rem;color:var(--goldink);
+    background:#3a0d0b;border:1px solid var(--gold2);border-radius:8px}
+  .mhead h2{font-family:var(--serif);font-size:1.08rem;margin:0;letter-spacing:.06em;color:var(--goldink)}
+  .mhead .hint{color:var(--faint);font-size:.82rem;margin-left:auto}
+
+  .dropzone{border:1.5px dashed var(--gold);border-radius:10px;padding:30px 18px;
+    text-align:center;background:#2f0d0c;transition:.15s;cursor:pointer;outline:none}
+  .dropzone:hover,.dropzone:focus-visible{border-color:var(--gold3);background:#360f0e}
+  .dropzone.over{border-color:var(--red3);background:#48110f;box-shadow:0 0 0 2px #5e1512 inset}
+  .dropzone .glyph{width:46px;height:46px;margin:0 auto 10px;color:var(--goldink)}
+  .dropzone strong{color:var(--goldink);font-weight:600}
+  .dropzone .sub{color:var(--faint);font-size:.84rem;margin-top:5px}
+  .dropzone .mask{display:inline-block;margin-top:10px;font-size:.76rem;color:var(--faint);
+    border:1px solid var(--line2);border-radius:99px;padding:2px 10px}
+
+  .filecard[hidden]{display:none}
+  .filecard{display:flex;gap:12px;align-items:center;margin-top:12px;padding:11px 13px;
+    border:1px solid var(--line2);border-radius:9px;background:#330e0c}
+  .filecard .ico{width:30px;height:30px;color:var(--red3);flex:0 0 30px}
+  .filecard .name{font-weight:600;word-break:break-all}
+  .filecard .meta{color:var(--faint);font-size:.8rem}
+  .filecard .grow{flex:1;min-width:0}
+  .btn-ghost{background:#2b0a09;color:var(--goldink);border:1px solid var(--gold2);
+    border-radius:8px;padding:5px 11px;font-size:.8rem;cursor:pointer;white-space:nowrap;font:inherit}
+  .btn-ghost:hover{border-color:var(--gold3);background:#3a0e0c}
+  .btn-ghost:disabled{opacity:.45;cursor:not-allowed}
+
+  .stage{margin:0 0 18px;padding:14px 22px;border-radius:12px;background:var(--bg2);
+    border:1px solid var(--line)}
+  .labelrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+  .labelrow b{font-family:var(--serif);color:var(--goldink);font-weight:600;letter-spacing:.04em}
+  .labelrow span{color:var(--faint);font-size:.82rem}
+  .bar{height:8px;border-radius:99px;background:#340e0c;overflow:hidden;border:1px solid #43110e}
+  .bar>i{display:block;height:100%;width:0;background:var(--red2);transition:width .2s linear}
+  .bar.done>i{background:var(--gold3)}
+  .ticks{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  .tick{font-size:.74rem;color:var(--faint);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+  .tick.on{color:var(--goldink);border-color:var(--gold2);background:#38120f}
+  .tick.now{color:#fff;border-color:var(--red3);background:#6d1611}
+  .joblogs{margin-top:8px;font-size:.75rem;color:var(--faint);font-family:Consolas,monospace;
+    max-height:3.4em;overflow:hidden;white-space:pre-wrap}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{font:inherit;font-size:.85rem;color:var(--dim);cursor:pointer;
+    background:#2b0a09;border:1px solid var(--line2);border-radius:8px;padding:6px 13px}
+  .tab:hover{border-color:var(--gold2);color:var(--ink)}
+  .tab[aria-selected="true"]{color:var(--goldink);border-color:var(--gold2);background:#4a1210}
+  .tab .badge{display:inline-block;min-width:19px;margin-left:6px;padding:0 5px;font-size:.71rem;
+    color:var(--goldink);background:#5c1a15;border:1px solid var(--gold);border-radius:99px}
+
+  .railbar{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:.78rem;color:var(--faint)}
+  .railbar .grow{flex:1}
+  .rail{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;
+    cursor:grab;scrollbar-width:none;-ms-overflow-style:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail.dragging{cursor:grabbing}
+  .rail.dragging .pcard{pointer-events:none}
+
+  .pcard{flex:0 0 168px;background:#2c0c0b;border:1px solid var(--line2);border-radius:9px;
+    padding:9px;position:relative;user-select:none;cursor:pointer}
+  .pcard:hover{border-color:var(--gold2)}
+  .pcard[aria-selected="true"]{border-color:var(--gold3);background:#3a100d;
+    box-shadow:0 0 0 1px var(--gold2) inset}
+  .pcard .thumb{position:relative;aspect-ratio:3/4;border-radius:5px;overflow:hidden;
+    background:#1d0a09;border:1px solid #43110e}
+  .pcard .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .pcard .pgno{position:absolute;left:5px;top:5px;font-family:var(--serif);font-size:.68rem;
+    color:#210707;background:var(--gold3);border-radius:3px;padding:0 5px;font-weight:700}
+  .pcard .ttl{font-size:.8rem;margin:7px 0 1px;line-height:1.35;color:var(--ink);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.2em}
+  .pcard .rng{font-size:.72rem;color:var(--faint)}
+  .pcard .chk{position:absolute;right:8px;top:8px;width:17px;height:17px;border-radius:4px;
+    border:1px solid var(--gold2);background:#2a0a09;display:grid;place-items:center;
+    font-size:.66rem;color:transparent}
+  .pcard[aria-selected="true"] .chk{background:var(--gold3);border-color:var(--gold3);color:#210707}
+
+  .hscroll{position:relative;height:14px;margin-top:2px;border-radius:99px;background:#340e0c;
+    border:1px solid #43110e;cursor:pointer;touch-action:none;display:flex;align-items:center;padding:0 2px}
+  .hscroll.hide{opacity:.3;pointer-events:none}
+  .hthumb{position:absolute;top:2px;left:2px;height:8px;border-radius:99px;background:var(--gold2);
+    cursor:grab;min-width:36px}
+  .hscroll:hover .hthumb{background:var(--gold3)}
+  .hscroll.active .hthumb{background:var(--gold3)}
+  .hthumb:active{cursor:grabbing}
+
+  .adv{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-top:12px}
+  .advhint{font-size:.75rem;color:var(--faint);line-height:1.5;max-width:360px}
+  .empty{color:var(--faint);font-size:.85rem;padding:24px 4px;text-align:center;
+    border:1px dashed var(--line2);border-radius:9px}
+
+  .pick{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .chip{font-size:.79rem;color:var(--goldink);border:1px solid var(--gold2);background:#38120f;
+    border-radius:99px;padding:3px 11px}
+  .chip.ok{color:#cfe6ae;border-color:var(--ok);background:#243018}
+  .pick .state{font-size:.85rem;color:var(--dim)}
+  .pick .state b{color:var(--goldink)}
+  .btn-gold{font:inherit;font-size:.88rem;font-weight:600;letter-spacing:.03em;cursor:pointer;
+    color:#f6e9cf;padding:9px 20px;border-radius:9px;border:1px solid var(--gold2);
+    background:var(--red);transition:.15s}
+  .btn-gold:hover:not(:disabled){background:var(--red2)}
+  .btn-gold:disabled{opacity:.4;cursor:not-allowed}
+
+  .guide{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px}
+  .step{text-align:center;padding:11px 8px;border:1px solid var(--line);border-radius:9px;background:#2b0a09}
+  .step .art{width:100%;height:66px;margin-bottom:7px}
+  .step .cap{font-size:.76rem;color:var(--dim);line-height:1.5}
+  .step .cap b{display:block;color:var(--goldink);font-size:.8rem;margin-bottom:2px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:14px}
+  .opt{display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:var(--faint)}
+  .opt input{font:inherit;font-size:.85rem;color:var(--ink);background:#240808;
+    border:1px solid var(--line2);border-radius:7px;padding:5px 8px;width:100px}
+  .opt input:focus{outline:none;border-color:var(--gold2)}
+  .opt.check{flex-direction:row;align-items:center;gap:6px}
+
+  .importrow{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+  .btn-import{font:inherit;font-size:1rem;font-weight:700;letter-spacing:.08em;cursor:pointer;
+    color:#fff0dd;padding:15px 32px;border-radius:11px;border:1px solid var(--gold2);
+    background:var(--red);transition:.15s}
+  .btn-import:hover:not(:disabled){background:var(--red2)}
+  .btn-import:disabled{opacity:.38;cursor:not-allowed}
+  .imlog{margin-top:12px;font-size:.77rem;color:var(--dim);font-family:Consolas,monospace;
+    max-height:9em;overflow:auto;background:#240808;border:1px solid var(--line);border-radius:8px;
+    padding:9px 11px;white-space:pre-wrap}
+  .imlog:empty{display:none}
+  .note{margin-top:16px;font-size:.77rem;color:var(--faint);border-top:1px dashed var(--line);padding-top:11px}
+  @media (max-width:720px){
+    .guide{grid-template-columns:repeat(2,1fr)}
+    .pcard{flex-basis:146px}
+    body{padding:20px 12px 44px}
+    .mhead .hint{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="32" cy="32" r="27" stroke="#8a6a1a" stroke-width="1.2"/>
+      <circle cx="32" cy="32" r="22.5" stroke="#7a1c18" stroke-width="1"/>
+      <path d="M23 20h10a9 9 0 0 1 0 18h-5.5l7.5 6" stroke="#c4a468" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M23 20v24" stroke="#c4a468" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <h1>pdf2onenote</h1>
+    <p>把整本 PDF 按章节切开，再一键导入 OneNote —— 一章（或一节）一个页面</p>
+    <div class="rule"></div>
+  </header>
+
+  <div class="offline" id="offline">
+    未连接到本地服务，界面无法工作。请在项目目录运行
+    <code>python -m pdf2onenote web</code>，再用它打印的地址打开本页（默认
+    <code>http://127.0.0.1:8765</code>）。
+  </div>
+
+  <!-- ============ ① 导入 ============ -->
+  <section class="module" id="m1">
+    <div class="mhead">
+      <span class="num">壹</span><h2>导入 PDF 文档</h2>
+      <span class="hint">拖进来立刻在本机识别，文件不会上传到任何服务器</span>
+    </div>
+    <div class="dropzone" id="drop" role="button" tabindex="0" aria-label="拖入 PDF 或点击选择">
+      <svg class="glyph" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M14 6h14l8 8v28a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+              stroke="currentColor" stroke-width="1.6"/>
+        <path d="M28 6v9h9" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M24 34V21m0 0-6 6m6-6 6 6" stroke="#d13a32" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div><strong>把整本教材 PDF 拖到这里</strong></div>
+      <div class="sub">或者点击此处选择文件</div>
+      <div class="mask">.pdf · 单个文件 · 上限 512MB</div>
+      <input type="file" id="file" accept="application/pdf,.pdf" hidden>
+    </div>
+    <div class="filecard" id="filecard" hidden>
+      <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 2h8l4 4v16H6z" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      <div class="grow">
+        <div class="name" id="fname">—</div>
+        <div class="meta" id="fmeta">—</div>
+      </div>
+      <button class="btn-ghost" id="refile" type="button">换一个文件</button>
+    </div>
+    <div class="adv">
+      <label class="opt">目录扫描页数
+        <input id="optScan" type="number" min="5" max="200" step="5" value="30">
+      </label>
+      <label class="opt">OCR 线程
+        <input id="optWorkers" type="number" min="1" max="8" value="1">
+      </label>
+      <span class="advhint">扫描件（没有文本层）会 OCR 前 N 页找目录；N 越大越慢，目录靠前的书可以调到 20。</span>
+    </div>
+  </section>
+
+  <!-- ============ 进度 ============ -->
+  <section class="stage" id="progress">
+    <div class="labelrow">
+      <b>识别与切分</b>
+      <span id="pusage">等待导入文档…</span>
+    </div>
+    <div class="bar" id="bar"><i id="barfill"></i></div>
+    <div class="ticks" id="ticks">
+      <span class="tick" data-s="0">1 识别章节</span>
+      <span class="tick" data-s="1">2 计算页区间</span>
+      <span class="tick" data-s="2">3 生成切分文件</span>
+      <span class="tick" data-s="3">4 预览就绪</span>
+    </div>
+    <div class="joblogs" id="joblogs"></div>
+  </section>
+
+  <!-- ============ ② 预览（真实切分结果） ============ -->
+  <section class="module" id="m2">
+    <div class="mhead">
+      <span class="num">贰</span><h2>切分结果的预览</h2>
+      <span class="hint" id="m2hint">每一张就是切好后的一份 PDF，点卡片可以选中/取消</span>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="切分路径">
+      <button class="tab" role="tab" data-mode="l1" aria-selected="true">
+        按章 <span class="badge" data-count="l1">0</span>
+      </button>
+      <button class="tab" role="tab" data-mode="l2" aria-selected="false">
+        按章 + 节 <span class="badge" data-count="l2">0</span>
+      </button>
+      <button class="tab" role="tab" data-mode="fixed" aria-selected="false">
+        固定页数（每 30 页）<span class="badge" data-count="fixed">0</span>
+      </button>
+    </div>
+
+    <div class="railbar">
+      <span id="railtag">还没有结果</span>
+      <span class="grow"></span>
+      <button class="btn-ghost" id="selall" type="button">全选</button>
+      <button class="btn-ghost" id="selnone" type="button">全不选</button>
+    </div>
+
+    <div class="rail" id="rail" role="listbox" aria-label="切分预览"></div>
+
+    <!-- 图片下方：可以左右滑动的滚动条 -->
+    <div class="hscroll hide" id="hscroll" role="scrollbar" aria-label="横向滚动">
+      <div class="hthumb" id="hthumb"></div>
+    </div>
+
+    <div class="railbar" style="margin-top:8px"><span id="m2state"></span></div>
+  </section>
+
+  <!-- ============ 选择切分成果 ============ -->
+  <section class="stage" id="pick">
+    <div class="pick">
+      <span class="chip" id="pickchip">未选择</span>
+      <span class="state" id="pickstate">先导入 PDF，切分完成后在这里确认要导入的成果。</span>
+      <button class="btn-gold" id="confirm" type="button" disabled>确认这些切分成果 →</button>
+      <button class="btn-ghost" id="resetall" type="button">重新开始</button>
+    </div>
+  </section>
+
+  <!-- ============ ③ 导入 OneNote ============ -->
+  <section class="module" id="m3">
+    <div class="mhead">
+      <span class="num">叁</span><h2>一键导入 OneNote</h2>
+      <span class="hint" id="m3hint">会真的在 OneNote 里建页并贴图</span>
+    </div>
+
+    <div class="guide" aria-label="操作指导">
+      <div class="step">
+        <svg class="art" viewBox="0 0 120 74" fill="none" aria-hidden="true">
+          <rect x="14" y="8" width="92" height="58" rx="4" stroke="#7a1c18"/>
+          <rect x="14" y="8" width="92" height="12" rx="4" fill="#310d0d" stroke="#7a1c18"/>
+          <path d="M20 14h6M30 14h6" stroke="#a8832c" stroke-width="1.4" stroke-linecap="round"/>
+          <rect x="22" y="26" width="18" height="32" rx="2" stroke="#8a6a1a" fill="#210707"/>
+          <path d="M25 32h12M25 37h12M25 42h8" stroke="#8d7161" stroke-width="1.2" stroke-linecap="round"/>
+          <rect x="48" y="26" width="50" height="32" rx="2" stroke="#5a1512" fill="#1a0505"/>
+          <path d="M53 33h40M53 39h30M53 45h36" stroke="#6b4a3a" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <div class="cap"><b>①</b>OneNote 切到目标分区</div>
+      </div>
+      <div class="step">
+        <svg class="art" viewBox="0 0 120 74" fill="none" aria-hidden="true">
+          <rect x="30" y="13" width="60" height="26" rx="13" fill="#8c1c18" stroke="#a8832c" stroke-width="1.6"/>
+          <text x="60" y="31" text-anchor="middle" font-size="12" fill="#f6e9cf"
+                font-family="Georgia, serif">一键导入</text>
+          <path d="M60 43v14m0 0-7-7m7 7 7-7" stroke="#d13a32" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M38 66h44" stroke="#8a6a1a" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <div class="cap"><b>②</b>点下面的大按钮</div>
+      </div>
+      <div class="step">
+        <svg class="art" viewBox="0 0 120 74" fill="none" aria-hidden="true">
+          <rect x="18" y="10" width="84" height="54" rx="4" stroke="#7a1c18"/>
+          <path d="M18 24h84" stroke="#7a1c18"/>
+          <rect x="24" y="30" width="34" height="28" rx="2" fill="#210707" stroke="#8a6a1a"/>
+          <rect x="62" y="30" width="34" height="28" rx="2" fill="#210707" stroke="#5a1512"/>
+          <path d="M28 36h26M28 41h26M28 46h18M28 51h22" stroke="#8d7161" stroke-width="1.1" stroke-linecap="round"/>
+          <path d="M66 36h24M66 41h18M66 46h22" stroke="#6b4a3a" stroke-width="1.1" stroke-linecap="round"/>
+        </svg>
+        <div class="cap"><b>③</b>一章一页自动生成</div>
+      </div>
+      <div class="step">
+        <svg class="art" viewBox="0 0 120 74" fill="none" aria-hidden="true">
+          <circle cx="52" cy="34" r="18" stroke="#a8832c" stroke-width="1.8"/>
+          <path d="M65 47l14 14" stroke="#a8832c" stroke-width="2.4" stroke-linecap="round"/>
+          <text x="52" y="39" text-anchor="middle" font-size="12" fill="#c4a468">Aa</text>
+          <text x="96" y="66" text-anchor="middle" font-size="7" fill="#8d7161">Ctrl+E</text>
+        </svg>
+        <div class="cap"><b>④</b>Ctrl+E 搜索核对</div>
+      </div>
+    </div>
+
+    <div class="opts">
+      <label class="opt">渲染 DPI
+        <input id="optDpi" type="number" min="72" max="300" step="10" value="150">
+      </label>
+      <label class="opt">每页等待(秒)
+        <input id="optDelay" type="number" min="0.1" max="5" step="0.1" value="0.6">
+      </label>
+      <label class="opt">只导前 N 个（0=全部）
+        <input id="optLimit" type="number" min="0" step="1" value="0">
+      </label>
+      <label class="opt check"><input id="optUi" type="checkbox"> 强制界面通道</label>
+    </div>
+
+    <div class="importrow">
+      <button class="btn-import" id="import" type="button" disabled>一键导入 OneNote</button>
+      <span class="state" id="importstate">请先在上一步确认切分成果</span>
+    </div>
+    <div class="imlog" id="imlog"></div>
+
+    <div class="note">
+      切分、预览缩略图、导入都是<strong>真的在本机跑</strong>：切分用 <code>pymupdf</code>
+      生成真实 PDF，缩略图是切分产物的首页渲染，导入走 OneNote 的 COM 或 UI 通道。
+      运行期间请在 OneNote 里切到目标分区，别抢鼠标键盘。
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const $ = (s) => document.querySelector(s);
+  const el = {
+    offline: $("#offline"),
+    drop: $("#drop"), file: $("#file"), filecard: $("#filecard"),
+    fname: $("#fname"), fmeta: $("#fmeta"), refile: $("#refile"),
+    bar: $("#bar"), barfill: $("#barfill"), pusage: $("#pusage"),
+    ticks: Array.from(document.querySelectorAll(".tick")), joblogs: $("#joblogs"),
+    tabs: Array.from(document.querySelectorAll(".tab")),
+    counts: { l1: $('[data-count="l1"]'), l2: $('[data-count="l2"]'), fixed: $('[data-count="fixed"]') },
+    rail: $("#rail"), hscroll: $("#hscroll"), hthumb: $("#hthumb"),
+    railtag: $("#railtag"), m2state: $("#m2state"), m2hint: $("#m2hint"),
+    selall: $("#selall"), selnone: $("#selnone"),
+    pickchip: $("#pickchip"), pickstate: $("#pickstate"), confirm: $("#confirm"),
+    resetall: $("#resetall"),
+    imp: $("#import"), impstate: $("#importstate"), imlog: $("#imlog"),
+    optDpi: $("#optDpi"), optDelay: $("#optDelay"), optLimit: $("#optLimit"), optUi: $("#optUi"),
+    optScan: $("#optScan"), optWorkers: $("#optWorkers")
+  };
+
+  const S = {
+    online: false, info: null,
+    id: null, name: "", pages: 0, size: 0,
+    mode: "l1",
+    runs: {},                      // mode -> {items, strategy, count}
+    selected: new Set(),
+    confirmed: false,
+    busy: false
+  };
+
+  const fmtSize = (n) => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.round(n / 1024) + " KB";
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const escapeAttr = escapeHtml;
+
+  function setProgress(pct, stage, tail) {
+    el.barfill.style.width = Math.max(0, Math.min(100, pct)) + "%";
+    el.bar.classList.toggle("done", pct >= 100);
+    if (stage) el.pusage.textContent = stage;
+    if (typeof tail === "string") el.joblogs.textContent = tail;
+  }
+  function tickStages(idx) {
+    el.ticks.forEach((t, i) => {
+      t.classList.toggle("on", i < idx);
+      t.classList.toggle("now", i === idx);
+    });
+  }
+  function err(msg) {
+    el.pusage.textContent = "出错了：" + msg;
+    el.joblogs.textContent = String(msg);
+  }
+
+  async function api(path, opts) {
+    const r = await fetch(path, Object.assign({ cache: "no-store" }, opts || {}));
+    const ct = r.headers.get("Content-Type") || "";
+    if (!r.ok) {
+      let m = r.status + " " + r.statusText;
+      if (ct.indexOf("json") >= 0) { try { m = (await r.json()).error || m; } catch (e) { /* ignore */ } }
+      throw new Error(m);
+    }
+    return ct.indexOf("json") >= 0 ? r.json() : r;
+  }
+
+  async function pollJob(jobId, onTick) {
+    for (;;) {
+      const d = await api("/api/job?id=" + encodeURIComponent(jobId));
+      const j = d.job;
+      onTick(j);
+      if (j.done) {
+        if (j.error) throw new Error(j.error);
+        return j.result;
+      }
+      await sleep(320);
+    }
+  }
+
+  async function boot() {
+    try {
+      S.info = await api("/api/info");
+      S.online = true;
+      el.offline.classList.remove("show");
+    } catch (e) {
+      S.online = false;
+      el.offline.classList.add("show");
+      el.drop.style.pointerEvents = "none";
+      el.drop.style.opacity = ".5";
+      return;
+    }
+    await restoreFromUrl();
+    renderAll();
+  }
+
+  /* 支持 ?uid=xxx&mode=l1 直接从服务端恢复上一次的会话（刷新页面也不丢） */
+  async function restoreFromUrl() {
+    const q = new URLSearchParams(location.search);
+    const uid = q.get("uid");
+    if (!uid) return;
+    try {
+      const st = await api("/api/state?id=" + encodeURIComponent(uid));
+      S.id = st.id; S.name = st.name; S.pages = st.pages; S.size = st.size;
+      S.runs = st.runs || {};
+      const wanted = q.get("mode");
+      S.mode = (wanted && S.runs[wanted]) ? wanted : (Object.keys(S.runs)[0] || "l1");
+      const run = S.runs[S.mode];
+      if (run) S.selected = new Set(run.items.map(x => x.name));
+      el.filecard.hidden = false;
+      el.fname.textContent = S.name;
+      el.fmeta.textContent = fmtSize(S.size) + " · " + S.pages + " 页（真实页数）";
+      if (run) {
+        tickStages(4);
+        setProgress(100, "预览就绪：" + run.count + " 个文件");
+      }
+    } catch (e) { /* 恢复失败就当没带参数 */ }
+  }
+
+  async function handleFile(f) {
+    if (!f || !S.online) return;
+    if (!/\.pdf$/i.test(f.name)) { err("请选择 .pdf 文件"); return; }
+    S.busy = true;
+    S.id = null; S.runs = {}; S.selected.clear(); S.confirmed = false; S.mode = "l1";
+    el.filecard.hidden = false;
+    el.fname.textContent = f.name;
+    el.fmeta.textContent = fmtSize(f.size) + " · 传给本地服务…";
+    renderAll();
+    try {
+      const up = await api("/api/upload?name=" + encodeURIComponent(f.name),
+        { method: "POST", body: f, headers: { "Content-Type": "application/pdf" } });
+      S.id = up.id; S.name = up.name; S.pages = up.pages; S.size = up.size;
+      el.fmeta.textContent = fmtSize(up.size) + " · " + up.pages + " 页（真实页数）";
+      await runChain("l1");
+    } catch (e) {
+      err(e.message);
+    } finally {
+      S.busy = false;
+      renderAll();
+    }
+  }
+
+  async function runChain(mode) {
+    if (!S.id) return;
+    setProgress(2, "识别章节…", "");
+    tickStages(0);
+    const pj = await api("/api/plan", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: S.id, mode: mode,
+        opts: {
+          toc_scan: Number(el.optScan.value) || 30,
+          workers: Number(el.optWorkers.value) || 1
+        }
+      })
+    });
+    await pollJob(pj.job, (j) => {
+      setProgress(Math.max(2, Math.min(74, j.pct * 0.74)), j.stage, j.logs.join("\n"));
+      tickStages(0);
+    });
+    setProgress(76, "生成切分文件…");
+    tickStages(2);
+    const sj = await api("/api/split", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: S.id, mode: mode })
+    });
+    const split = await pollJob(sj.job, (j) => {
+      setProgress(76 + j.pct * 0.22, j.stage, j.logs.join("\n"));
+      tickStages(2);
+    });
+    S.runs[mode] = { items: split.files, strategy: split.strategy, count: split.count };
+    S.selected = new Set(split.files.map(x => x.name));
+    tickStages(4);
+    setProgress(100, "预览就绪：" + split.count + " 个文件");
+    renderAll();
+  }
+
+  function curRun() { return S.runs[S.mode]; }
+
+  function renderTabs() {
+    el.tabs.forEach(t => t.setAttribute("aria-selected", String(t.dataset.mode === S.mode)));
+    Object.keys(el.counts).forEach(k => {
+      const r = S.runs[k];
+      el.counts[k].textContent = r ? r.count : 0;
+    });
+    const run = curRun();
+    if (run) el.m2hint.textContent = run.strategy + " · 共 " + run.count + " 个文件";
+  }
+
+  const thumbUrl = (i) => "/api/thumb?id=" + encodeURIComponent(S.id) +
+    "&mode=" + encodeURIComponent(S.mode) + "&idx=" + i + "&w=232";
+
+  function renderRail() {
+    const run = curRun();
+    if (!run) {
+      el.rail.innerHTML = S.id
+        ? '<div class="empty">识别中…</div>'
+        : '<div class="empty">还没有切分结果 —— 先把 PDF 拖进上面的框里。</div>';
+      el.railtag.textContent = "还没有结果";
+      el.m2state.textContent = "";
+      el.hscroll.classList.add("hide");
+      return;
+    }
+    el.railtag.textContent = "共 " + run.items.length + " 个文件 · 拖动卡片或下方滚动条左右查看";
+    el.rail.innerHTML = run.items.map((it, i) => {
+      const sel = S.selected.has(it.name);
+      const no = it.chapter >= 90 ? "附" :
+                 (it.chapter === 0 ? "前" : (it.section >= 0 ? it.chapter + "-" + it.section : String(it.chapter)));
+      return '<div class="pcard" role="option" tabindex="0" data-name="' + escapeAttr(it.name) + '"' +
+        ' aria-selected="' + (sel ? "true" : "false") + '" title="' + escapeAttr(it.title) + '">' +
+        '<div class="chk">✓</div>' +
+        '<div class="thumb"><span class="pgno">' + no + '</span>' +
+          '<img loading="lazy" alt="' + escapeAttr(it.title) + '" src="' + thumbUrl(i) + '">' +
+        '</div>' +
+        '<div class="ttl">' + escapeHtml(it.title) + '</div>' +
+        '<div class="rng">' + it.pages + ' 页</div>' +
+      '</div>';
+    }).join("");
+    requestAnimationFrame(syncHScroll);
+    renderPickState();
+  }
+
+  function pickNamesPreview() {
+    const run = curRun();
+    if (!run) return "";
+    const picked = run.items.filter(x => S.selected.has(x.name)).slice(0, 2);
+    if (!picked.length) return "";
+    return picked.map(x => x.title).join("、") + (S.selected.size > 2 ? " 等" : "");
+  }
+
+  function renderPickState() {
+    const run = curRun();
+    const n = S.selected.size;
+    el.m2state.textContent = run
+      ? "已选 " + n + " / " + run.items.length + " 个文件" + (n && n < run.items.length ? "（未选的不会导入）" : "")
+      : "";
+    el.pickchip.textContent = !run ? "未选择" : (S.confirmed ? "已确认" : "待确认");
+    el.pickchip.className = "chip" + (S.confirmed ? " ok" : "");
+    if (!run) {
+      el.pickstate.textContent = "先导入 PDF，切分完成后在这里确认要导入的成果。";
+      return;
+    }
+    const names = pickNamesPreview();
+    el.pickstate.innerHTML = "当前方案：<b>" + escapeHtml(run.strategy) + "</b> · 已选 <b>" + n +
+      "</b> 个文件" + (names ? "（如 " + escapeHtml(names) + "）" : "");
+  }
+
+  function renderAll() {
+    renderTabs();
+    renderRail();
+    const run = curRun();
+    el.confirm.disabled = !run || !S.selected.size || S.busy;
+    el.confirm.textContent = S.confirmed ? "重新确认 →" : "确认这些切分成果 →";
+    el.selall.disabled = !run; el.selnone.disabled = !run;
+    el.imp.disabled = !(S.confirmed && !S.busy && run && S.selected.size);
+    el.impstate.textContent = S.confirmed
+      ? "已就绪：将导入 " + S.selected.size + " 个文件"
+      : "请先在上一步确认切分成果";
+  }
+
+  /* ---------- 图片下方：可拖动的横向滚动条 ---------- */
+  function syncHScroll() {
+    const rail = el.rail, track = el.hscroll, thumb = el.hthumb;
+    const max = rail.scrollWidth - rail.clientWidth;
+    if (max <= 4) { track.classList.add("hide"); return; }
+    track.classList.remove("hide");
+    const trackW = track.clientWidth - 4;
+    const w = Math.max(36, Math.round(trackW * (rail.clientWidth / rail.scrollWidth)));
+    thumb.style.width = w + "px";
+    const left = w >= trackW ? 2 : 2 + (rail.scrollLeft / max) * (trackW - w);
+    thumb.style.left = left + "px";
+  }
+
+  let hDrag = null;
+  function startHDrag(e) {
+    const rail = el.rail, track = el.hscroll, thumb = el.hthumb;
+    const max = rail.scrollWidth - rail.clientWidth;
+    if (max <= 0) return;
+    const trackW = track.clientWidth - 4;
+    const thumbW = thumb.getBoundingClientRect().width;
+    const onThumb = (e.target === thumb);
+    if (!onThumb) {
+      const rect = track.getBoundingClientRect();
+      const rel = e.clientX - rect.left - thumbW / 2;
+      rail.scrollLeft = Math.max(0, Math.min(max, (rel / Math.max(1, trackW - thumbW)) * max));
+      syncHScroll();
+    }
+    hDrag = { x: e.clientX, left: rail.scrollLeft, thumbW: thumbW, trackW: trackW, max: max };
+    track.classList.add("active");
+    e.preventDefault();
+    window.addEventListener("pointermove", onHDrag);
+    window.addEventListener("pointerup", endHDrag, { once: true });
+  }
+  function onHDrag(e) {
+    if (!hDrag) return;
+    const dx = e.clientX - hDrag.x;
+    const ratio = hDrag.max / Math.max(1, hDrag.trackW - hDrag.thumbW);
+    el.rail.scrollLeft = Math.max(0, Math.min(hDrag.max, hDrag.left + dx * ratio));
+    syncHScroll();
+  }
+  function endHDrag() {
+    hDrag = null;
+    el.hscroll.classList.remove("active");
+    window.removeEventListener("pointermove", onHDrag);
+  }
+
+  /* ---------- 卡片区拖动平移 ---------- */
+  let pan = null;
+  el.rail.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    pan = { x: e.clientX, left: el.rail.scrollLeft, moved: false };
+    el.rail.classList.add("dragging");
+  });
+  el.rail.addEventListener("pointermove", e => {
+    if (!pan) return;
+    const dx = e.clientX - pan.x;
+    if (Math.abs(dx) > 4) pan.moved = true;
+    el.rail.scrollLeft = pan.left - dx;
+    syncHScroll();
+  });
+  function endPan() {
+    if (!pan) return;
+    const moved = pan.moved;
+    pan = null;
+    el.rail.classList.remove("dragging");
+    if (moved) {
+      const stop = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+      el.rail.addEventListener("click", stop, { capture: true, once: true });
+    }
+  }
+  el.rail.addEventListener("pointerup", endPan);
+  el.rail.addEventListener("pointercancel", endPan);
+  el.rail.addEventListener("pointerleave", () => { if (pan) endPan(); });
+  el.rail.addEventListener("scroll", () => requestAnimationFrame(syncHScroll));
+  el.rail.addEventListener("wheel", e => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (el.rail.scrollWidth <= el.rail.clientWidth) return;
+    el.rail.scrollLeft += e.deltaY;
+    e.preventDefault();
+    syncHScroll();
+  }, { passive: false });
+  el.hscroll.addEventListener("pointerdown", startHDrag);
+  window.addEventListener("resize", () => requestAnimationFrame(syncHScroll));
+
+  /* ---------- 模块 1 ---------- */
+  ["dragenter", "dragover"].forEach(ev => el.drop.addEventListener(ev, e => {
+    e.preventDefault(); el.drop.classList.add("over");
+  }));
+  ["dragleave", "dragend"].forEach(ev => el.drop.addEventListener(ev, e => {
+    e.preventDefault(); el.drop.classList.remove("over");
+  }));
+  el.drop.addEventListener("drop", e => {
+    e.preventDefault(); el.drop.classList.remove("over");
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    handleFile(f);
+  });
+  el.drop.addEventListener("click", () => el.file.click());
+  el.drop.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); el.file.click(); }
+  });
+  el.file.addEventListener("change", () => handleFile(el.file.files[0]));
+  el.refile.addEventListener("click", () => el.file.click());
+
+  /* ---------- 模块 2 ---------- */
+  el.tabs.forEach(t => t.addEventListener("click", async () => {
+    const mode = t.dataset.mode;
+    if (mode === S.mode) return;
+    S.mode = mode;
+    S.confirmed = false;
+    const cached = S.runs[mode];
+    if (cached) S.selected = new Set(cached.items.map(x => x.name));
+    renderAll();
+    if (S.id && !cached) {
+      try {
+        S.busy = true; renderAll();
+        await runChain(mode);
+      } catch (e) { err(e.message); }
+      finally { S.busy = false; renderAll(); }
+    }
+  }));
+
+  function toggleCard(card) {
+    const name = card.dataset.name;
+    if (S.selected.has(name)) S.selected.delete(name); else S.selected.add(name);
+    S.confirmed = false;
+    renderAll();
+  }
+  el.rail.addEventListener("click", e => {
+    const card = e.target.closest(".pcard");
+    if (card) toggleCard(card);
+  });
+  el.rail.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = e.target.closest(".pcard");
+    if (!card) return;
+    e.preventDefault();
+    toggleCard(card);
+  });
+  el.selall.addEventListener("click", () => {
+    const run = curRun(); if (!run) return;
+    run.items.forEach(x => S.selected.add(x.name));
+    S.confirmed = false; renderAll();
+  });
+  el.selnone.addEventListener("click", () => {
+    S.selected.clear(); S.confirmed = false; renderAll();
+  });
+
+  /* ---------- 选择成果 ---------- */
+  el.confirm.addEventListener("click", () => { S.confirmed = true; renderAll(); });
+
+  el.resetall.addEventListener("click", () => {
+    S.id = null; S.runs = {}; S.selected.clear(); S.confirmed = false; S.mode = "l1";
+    el.file.value = ""; el.filecard.hidden = true;
+    el.imlog.textContent = "";
+    setProgress(0, "等待导入文档…", "");
+    el.ticks.forEach(t => t.classList.remove("on", "now"));
+    renderAll();
+  });
+
+  /* ---------- 模块 3 ---------- */
+  el.imp.addEventListener("click", async () => {
+    const run = curRun();
+    if (!run || !S.confirmed) return;
+    S.busy = true; el.imp.disabled = true; el.imlog.textContent = "";
+    el.imp.textContent = "导入中…";
+    try {
+      const names = run.items.filter(x => S.selected.has(x.name)).map(x => x.name);
+      const opts = {
+        dpi: Number(el.optDpi.value) || 150,
+        delay: Number(el.optDelay.value) || 0.6,
+        limit: Number(el.optLimit.value) || 0,
+        ui: el.optUi.checked
+      };
+      const r = await api("/api/import", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: S.id, mode: S.mode, names: names, opts: opts })
+      });
+      const res = await pollJob(r.job, (j) => {
+        el.impstate.textContent = j.stage + "（" + j.pct + "%）";
+        el.imlog.textContent = j.logs.join("\n");
+        el.imlog.scrollTop = el.imlog.scrollHeight;
+      });
+      el.impstate.textContent = "完成（" + res.method + "）：" + res.count + " 个文件已导入";
+      el.imlog.textContent += "\n\n完成（" + res.method + "）：" + res.count + " 个页面就位。";
+    } catch (e) {
+      el.impstate.textContent = "导入失败：" + e.message;
+      el.imlog.textContent += "\n" + e.message;
+    } finally {
+      S.busy = false;
+      el.imp.textContent = "一键导入 OneNote";
+      renderAll();
+    }
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
