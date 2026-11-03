@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 400" width="940" height="400" role="img"
+     aria-label="一键启动：打开仓库文件夹 → 双击 web.bat → 浏览器自动打开 http://127.0.0.1:8765">
+  <defs>
+    <marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+      <path d="M0 0 L7 3.2 L0 6.4 Z" fill="#333"/>
+    </marker>
+    <style>
+      .t { font-family:"Microsoft YaHei","Noto Sans SC",sans-serif; fill:#1a1a1a; }
+      .d { font-family:"Microsoft YaHei","Noto Sans SC",sans-serif; fill:#5a5a5a; }
+      .k { font-family:"Microsoft YaHei","Noto Sans SC",sans-serif; fill:#111; font-weight:600; }
+      .m { font-family:Consolas,"Cascadia Mono",monospace; fill:#111; }
+      .h { font-family:Georgia,"Songti SC",serif; fill:#111; letter-spacing:.1em; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="940" height="400" rx="10" fill="#ffffff" stroke="#cfcfcf"/>
+  <text class="h" x="28" y="38" font-size="16">一键启动（Windows）</text>
+  <line x1="28" y1="50" x2="128" y2="50" stroke="#111" stroke-width="2"/>
+
+  <!-- ① 仓库文件夹 -->
+  <text class="k" x="32" y="82" font-size="12">① 打开仓库文件夹（能看到 web.bat 的那一层）</text>
+  <rect x="32" y="94" width="268" height="208" rx="6" fill="#ffffff" stroke="#333"/>
+  <rect x="32" y="94" width="268" height="24" rx="6" fill="#f2f2f2"/>
+  <rect x="32" y="110" width="268" height="8" fill="#f2f2f2"/>
+  <path d="M32 118h268" stroke="#333"/>
+  <text class="m" x="46" y="110" font-size="9.5" style="fill:#111">pdf2onenote\  （仓库根目录）</text>
+
+  <rect x="44" y="126" width="244" height="24" rx="3" fill="#111"/>
+  <text class="m" x="54" y="142" font-size="11" style="fill:#ffffff">web.bat</text>
+  <text class="d" x="196" y="142" font-size="9.5" style="fill:#ffffff">← 双击它</text>
+
+  <g class="m" font-size="10.5">
+    <text x="54" y="168" fill="#111">app.html</text>
+    <text x="54" y="186" fill="#111">pdf2onenote\</text>
+    <text x="54" y="204" fill="#5a5a5a">requirements.txt</text>
+    <text x="54" y="222" fill="#5a5a5a">images\</text>
+    <text x="54" y="240" fill="#5a5a5a">README.md</text>
+    <text x="54" y="258" fill="#8a8a8a">.venv\  ← 第一次双击后自动生成</text>
+    <text x="54" y="276" fill="#8a8a8a">（当前用的是仓库里的相对位置）</text>
+  </g>
+
+  <path d="M310 198h34" stroke="#333" stroke-width="1.6" marker-end="url(#a3)" stroke-dasharray="5 4"/>
+
+  <!-- ② 控制台 -->
+  <text class="k" x="352" y="82" font-size="12">② 双击后会出现这个窗口</text>
+  <rect x="352" y="94" width="252" height="208" rx="6" fill="#ffffff" stroke="#333"/>
+  <rect x="352" y="94" width="252" height="20" rx="6" fill="#111"/>
+  <rect x="352" y="107" width="252" height="7" fill="#111"/>
+  <text class="m" x="364" y="109" font-size="8.5" style="fill:#ffffff">pdf2onenote - 图形界面</text>
+  <g class="m" font-size="9">
+    <text x="366" y="138" fill="#111">[pdf2onenote] 正在启动本地服务，</text>
+    <text x="366" y="152" fill="#111">浏览器会自动打开 http://127.0.0.1:8765</text>
+    <text x="366" y="174" fill="#5a5a5a">[pdf2onenote] 用完后关掉这个窗口</text>
+    <text x="366" y="188" fill="#5a5a5a">（或按 Ctrl+C）就会停止服务。</text>
+    <text x="366" y="214" fill="#111">pdf2onenote 图形界面已启动：</text>
+    <text x="366" y="228" fill="#111">http://127.0.0.1:8765/</text>
+    <text x="366" y="252" fill="#333">首次运行会自动装依赖，1-3 分钟</text>
+    <text x="366" y="270" fill="#8a8a8a">以后再双击就是秒开</text>
+  </g>
+
+  <path d="M614 198h34" stroke="#333" stroke-width="1.6" marker-end="url(#a3)" stroke-dasharray="5 4"/>
+
+  <!-- ③ 浏览器 -->
+  <text class="k" x="656" y="82" font-size="12">③ 浏览器自动打开，拖 PDF 进去</text>
+  <rect x="656" y="94" width="252" height="208" rx="6" fill="#ffffff" stroke="#333"/>
+  <rect x="656" y="94" width="252" height="26" rx="6" fill="#f2f2f2"/>
+  <rect x="656" y="112" width="252" height="8" fill="#f2f2f2"/>
+  <path d="M656 120h252" stroke="#333"/>
+  <circle cx="670" cy="107" r="3.2" fill="#9a9a9a"/><circle cx="681" cy="107" r="3.2" fill="#9a9a9a"/>
+  <rect x="694" y="100" width="200" height="15" rx="7.5" fill="#ffffff" stroke="#bdbdbd"/>
+  <text class="m" x="704" y="111" font-size="8.6" fill="#333">127.0.0.1:8765</text>
+
+  <rect x="668" y="132" width="228" height="24" rx="3" fill="#f7f7f7" stroke="#333"/>
+  <text class="t" x="676" y="148" font-size="9.5">壹 · 导入 PDF（拖拽区）</text>
+  <rect x="668" y="162" width="228" height="18" rx="3" fill="#ffffff" stroke="#8a8a8a" stroke-dasharray="4 3"/>
+  <text class="d" x="676" y="175" font-size="8.6">把 PDF 拖到这里</text>
+
+  <rect x="668" y="188" width="228" height="20" rx="3" fill="#ffffff" stroke="#333"/>
+  <rect x="672" y="194" width="150" height="8" rx="4" fill="#111"/>
+  <text class="d" x="668" y="224" font-size="8.6">识别 → 切分 → 预览（进度在这里）</text>
+
+  <rect x="668" y="232" width="228" height="52" rx="3" fill="#f7f7f7" stroke="#333"/>
+  <text class="t" x="676" y="247" font-size="9.5">贰 · 切分结果预览</text>
+  <rect x="676" y="252" width="30" height="26" rx="2" fill="#ffffff" stroke="#111"/>
+  <rect x="710" y="252" width="30" height="26" rx="2" fill="#ffffff" stroke="#8a8a8a"/>
+  <rect x="744" y="252" width="30" height="26" rx="2" fill="#ffffff" stroke="#8a8a8a"/>
+  <rect x="778" y="252" width="30" height="26" rx="2" fill="#ffffff" stroke="#8a8a8a"/>
+  <rect x="816" y="262" width="72" height="8" rx="4" fill="#333"/>
+
+  <text class="d" x="32" y="334" font-size="10.5">不需要命令行、不需要记参数：双击 web.bat → 浏览器打开 → 拖 PDF → 点「一键导入 OneNote」。</text>
+  <text class="d" x="32" y="354" font-size="10.5">macOS / Linux 没有 .bat，用命令行：cd 到仓库目录后执行 python -m pdf2onenote web</text>
+  <text class="d" x="32" y="374" font-size="10.5">前置条件：已安装 Python 3.10+（安装时勾选 Add Python to PATH）。首次运行需要联网装依赖。</text>
+</svg>

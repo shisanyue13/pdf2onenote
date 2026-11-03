@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 320" width="940" height="320" role="img"
+     aria-label="命令行四步：安装依赖、查看识别结果、切分、导入 OneNote">
+  <defs>
+    <style>
+      .m { font-family:Consolas,"Cascadia Mono",monospace; }
+      .h { font-family:Georgia,"Songti SC",serif; fill:#111; letter-spacing:.1em; }
+      .d { font-family:"Microsoft YaHei","Noto Sans SC",sans-serif; fill:#5a5a5a; }
+      .k { font-family:"Microsoft YaHei","Noto Sans SC",sans-serif; fill:#111; font-weight:600; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="940" height="320" rx="10" fill="#ffffff" stroke="#cfcfcf"/>
+  <text class="h" x="28" y="38" font-size="16">指令版 · 四步跑完</text>
+  <line x1="28" y1="50" x2="112" y2="50" stroke="#111" stroke-width="2"/>
+
+  <!-- 终端 -->
+  <rect x="28" y="66" width="884" height="228" rx="8" fill="#ffffff" stroke="#333"/>
+  <rect x="28" y="66" width="884" height="24" rx="8" fill="#111"/>
+  <rect x="28" y="82" width="884" height="8" fill="#111"/>
+  <circle cx="48" cy="78" r="3.6" fill="#ffffff"/><circle cx="62" cy="78" r="3.6" fill="#9a9a9a"/>
+  <circle cx="76" cy="78" r="3.6" fill="#5a5a5a"/>
+  <text class="m" x="100" y="82" font-size="10" style="fill:#ffffff">pdf2onenote — Windows / Python 3.10+</text>
+
+  <g class="m" font-size="12.5">
+    <text x="48" y="116" fill="#8a8a8a"># 1) 装依赖（扫描件 OCR 用 requirements-ocr.txt，可选）</text>
+    <text x="48" y="138" fill="#111">&#62;</text>
+    <text x="64" y="138" fill="#111">pip install -r requirements.txt</text>
+
+    <text x="48" y="166" fill="#8a8a8a"># 2) 先看识别结果（不切文件）；--level 2 连小节一起切</text>
+    <text x="48" y="188" fill="#111">&#62;</text>
+    <text x="64" y="188" fill="#111">python -m pdf2onenote split --dry-run 书.pdf</text>
+
+    <text x="48" y="216" fill="#8a8a8a"># 3) 切分 / 4) 导入 OneNote（--limit 1 先试一页）</text>
+    <text x="48" y="238" fill="#111">&#62;</text>
+    <text x="64" y="238" fill="#111">python -m pdf2onenote split 书.pdf</text>
+    <text x="48" y="262" fill="#111">&#62;</text>
+    <text x="64" y="262" fill="#111">python -m pdf2onenote import ./书_章节 --limit 1</text>
+    <text x="48" y="286" fill="#111">&#62;</text>
+    <text x="64" y="286" fill="#111">python -m pdf2onenote all 书.pdf</text>
+    <text x="352" y="286" fill="#8a8a8a"># 一条龙</text>
+  </g>
+
+  <g font-size="10.5" font-family="Microsoft YaHei,Noto Sans SC,sans-serif">
+    <text x="716" y="190" fill="#5a5a5a">输出 01_…pdf</text>
+    <text x="716" y="206" fill="#5a5a5a">每章一个文件</text>
+    <text x="716" y="240" fill="#5a5a5a">页面标题 = 文件名</text>
+    <text x="716" y="256" fill="#5a5a5a">OneNote 后台 OCR</text>
+  </g>
+</svg>

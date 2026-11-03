@@ -1,0 +1,4 @@
+# 可选的 OCR 依赖：只有「扫描件（无文本层）也要自动找目录」时才需要（约 100MB 含模型）
+#   pip install -r requirements-ocr.txt
+-r requirements.txt
+rapidocr-onnxruntime>=1.2.3
